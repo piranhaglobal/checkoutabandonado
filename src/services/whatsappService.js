@@ -70,5 +70,9 @@ export async function sendTemplateMessage(lead, templateType) {
             }))
             .filter((part) => part && part.trim() !== '')
             .join('\n\n');
-    return sendWhatsAppMessageParts(lead, [message]);
+    const messageParts = [message];
+    if (lead.abandoned_checkout_url) {
+        messageParts.push(lead.abandoned_checkout_url);
+    }
+    return sendWhatsAppMessageParts(lead, messageParts);
 }
