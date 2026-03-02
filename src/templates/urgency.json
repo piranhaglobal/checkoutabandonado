@@ -4,54 +4,66 @@
     "pt": [
       "Olá {{first_name}}, cá estamos de novo! 🎨🖤",
       "",
-      "O teu pedido continua no carrinho e é um dos artigos mais procurados do momento.",
+      "O teu pedido continua no carrinho e é um dos mais procurados do momento.",
       "",
       "Se não finalizares a compra, o stock será libertado dentro de *6 horas*.",
       "Se garantires o teu hoje, enviamos ainda nas próximas *24 horas*.",
       "",
       "Não deixes a corrente levar a tua arte:",
+      "",
       "{{checkout_url}}",
       "",
-      "Qualquer dúvida, é só responder. Estamos aqui para ajudar."
+      "Qualquer dúvida, é só responder. Estamos aqui para ajudar.",
+      "",
+      "Esta é uma mensagem automática, não responda."
     ],
     "en": [
       "Hi {{first_name}}, we’re back again! 🎨🖤",
       "",
-      "Your order is still in the cart and it’s one of the most wanted items right now.",
+      "Your order is still in the cart and it’s one of the most wanted right now.",
       "",
       "If you don’t complete the purchase, the stock will be released within *6 hours*.",
       "If you secure yours today, we’ll ship within the next *24 hours*.",
       "",
       "Don’t let the current take your art away:",
+      "",
       "{{checkout_url}}",
       "",
-      "If you need anything, just reply. We’re here to help."
+      "If you need anything, just reply. We’re here to help.",
+      "",
+      "This is an automated message, please do not reply."
     ],
     "es": [
       "¡Hola {{first_name}}, aquí estamos de nuevo! 🎨🖤",
       "",
-      "Tu pedido sigue en el carrito y es uno de los artículos más buscados del momento.",
+      "Tu pedido sigue en el carrito y es uno de los más buscados del momento.",
       "",
       "Si no finalizas la compra, el stock se liberará en **6 horas**.",
       "Si lo aseguras hoy, enviamos en las próximas *24 horas*.",
       "",
       "No dejes que la corriente se lleve tu arte:",
+      "",
       "{{checkout_url}}",
       "",
-      "Cualquier duda, responde por aquí. Estamos para ayudarte."
+      "Cualquier duda, responde por aquí. Estamos para ayudarte.",
+      "",
+      "Este es un mensaje automático, no respondas."
     ],
     "fr": [
       "Bonjour {{first_name}}, nous revoilà ! 🎨🖤",
       "",
-      "Votre commande est toujours dans le panier et c’est l’un des articles les plus demandés du moment.",
+      "Votre commande est toujours dans le panier et c’est l’un des les plus demandés du moment.",
       "",
       "Si vous ne finalisez pas l’achat, le stock sera libéré dans *6 heures*.",
       "Si vous le confirmez aujourd’hui, nous expédions sous *24 heures*.",
       "",
       "Ne laissez pas le courant emporter votre art :",
+      "",
       "{{checkout_url}}",
       "",
-      "En cas de besoin, répondez ici. Nous sommes là pour aider."
+      "En cas de besoin, répondez ici. Nous sommes là pour aider.",
+      "",
+      "Ceci est un message automatique, merci de ne pas répondre."
     ]
   }
 }

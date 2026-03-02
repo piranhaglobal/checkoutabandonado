@@ -13,7 +13,9 @@
       "Finaliza agora o teu pedido:",
       "{{checkout_url}}",
       "",
-      "Conta connosco para o que precisares."
+      "Conta connosco para o que precisares.",
+      "",
+      "Esta é uma mensagem automática, não responda."
     ],
     "en": [
       "{{first_name}}, we really don’t want you to miss the chance to elevate your art. 🖤",
@@ -27,7 +29,9 @@
       "Finish your order now:",
       "{{checkout_url}}",
       "",
-      "Count on us for anything you need."
+      "Count on us for anything you need.",
+      "",
+      "This is an automated message, please do not reply."
     ],
     "es": [
       "{{first_name}}, no queremos que pierdas la oportunidad de elevar tu arte. 🖤",
@@ -41,7 +45,9 @@
       "Finaliza ahora tu pedido:",
       "{{checkout_url}}",
       "",
-      "Cuenta con nosotros para lo que necesites."
+      "Cuenta con nosotros para lo que necesites.",
+      "",
+      "Este es un mensaje automático, no respondas."
     ],
     "fr": [
       "{{first_name}}, nous ne voulons vraiment pas que tu rates l’occasion d’élever ton art. 🖤",
@@ -55,7 +61,9 @@
       "Finalise ta commande maintenant :",
       "{{checkout_url}}",
       "",
-      "Compte sur nous si tu as besoin."
+      "Compte sur nous si tu as besoin.",
+      "",
+      "Ceci est un message automatique, merci de ne pas répondre."
     ]
   },
   "defaults": {
