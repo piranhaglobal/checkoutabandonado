@@ -1,6 +1,6 @@
 import { getShopifyAccessToken } from './auth.js';
 
-async function fetchOrders({ dateMin, dateMax, email }) {
+async function* fetchOrders({ dateMin, dateMax, email }) {
     const storeUrl = (process.env.SHOPIFY_STORE_URL || '').replace(/^https?:\/\//, '');
     const token = getShopifyAccessToken();
 

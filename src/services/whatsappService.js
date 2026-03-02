@@ -41,10 +41,20 @@ function renderTemplatePart(part, template, data) {
 export async function sendTemplateMessage(lead, templateType) {
     const template = await loadTemplate(templateType);
     const language = resolveLanguage(lead);
-    const parts = template.languages?.[language] || template.languages?.en || template.parts || [];
+    const languageParts = template.languages?.[language] || template.languages?.en || template.parts || [];
+    const parts = Array.isArray(languageParts[0])
+        ? languageParts[Math.floor(Math.random() * languageParts.length)]
+        : languageParts;
     const discountCode = process.env.WHATSAPP_DISCOUNT_CODE || template.defaults?.discount_code || 'ORDER10';
+    const names = {
+        pt: 'amigo(a)',
+        es: 'amigo(a)',
+        fr: 'ami(e)',
+        en: 'friend'
+    };
+    const fallbackName = names[language] || 'friend';
     const messageParts = parts.map((part) => renderTemplatePart(part, template, {
-        first_name: lead.first_name || 'amigo(a)',
+        first_name: lead.first_name || fallbackName,
         product_name: lead.product_name || 'produto',
         checkout_url: lead.abandoned_checkout_url || '',
         discount_code: discountCode

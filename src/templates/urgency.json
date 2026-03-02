@@ -4,7 +4,7 @@
     "pt": [
       "Olá {{first_name}}, cá estamos de novo! 🎨🖤",
       "",
-      "O teu {{product_name}} continua no carrinho e é um dos artigos mais procurados do momento.",
+      "O teu pedido continua no carrinho e é um dos artigos mais procurados do momento.",
       "",
       "Se não finalizares a compra, o stock será libertado dentro de *6 horas*.",
       "Se garantires o teu hoje, enviamos ainda nas próximas *24 horas*.",
@@ -17,7 +17,7 @@
     "en": [
       "Hi {{first_name}}, we’re back again! 🎨🖤",
       "",
-      "Your {{product_name}} is still in the cart and it’s one of the most wanted items right now.",
+      "Your order is still in the cart and it’s one of the most wanted items right now.",
       "",
       "If you don’t complete the purchase, the stock will be released within *6 hours*.",
       "If you secure yours today, we’ll ship within the next *24 hours*.",
@@ -30,7 +30,7 @@
     "es": [
       "¡Hola {{first_name}}, aquí estamos de nuevo! 🎨🖤",
       "",
-      "Tu {{product_name}} sigue en el carrito y es uno de los artículos más buscados del momento.",
+      "Tu pedido sigue en el carrito y es uno de los artículos más buscados del momento.",
       "",
       "Si no finalizas la compra, el stock se liberará en **6 horas**.",
       "Si lo aseguras hoy, enviamos en las próximas *24 horas*.",
@@ -43,7 +43,7 @@
     "fr": [
       "Bonjour {{first_name}}, nous revoilà ! 🎨🖤",
       "",
-      "Votre {{product_name}} est toujours dans le panier et c’est l’un des articles les plus demandés du moment.",
+      "Votre commande est toujours dans le panier et c’est l’un des articles les plus demandés du moment.",
       "",
       "Si vous ne finalisez pas l’achat, le stock sera libéré dans *6 heures*.",
       "Si vous le confirmez aujourd’hui, nous expédions sous *24 heures*.",
