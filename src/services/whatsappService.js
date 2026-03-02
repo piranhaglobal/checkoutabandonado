@@ -53,11 +53,11 @@ export async function sendTemplateMessage(lead, templateType) {
         en: 'friend'
     };
     const fallbackName = names[language] || 'friend';
-    const messageParts = parts.map((part) => renderTemplatePart(part, template, {
+    const message = parts.map((part) => renderTemplatePart(part, template, {
         first_name: lead.first_name || fallbackName,
         product_name: lead.product_name || 'produto',
         checkout_url: lead.abandoned_checkout_url || '',
         discount_code: discountCode
-    })).filter((part) => part && part.trim() !== '');
-    return sendWhatsAppMessageParts(lead, messageParts);
+    })).filter((part) => part && part.trim() !== '').join('\n');
+    return sendWhatsAppMessageParts(lead, [message]);
 }
