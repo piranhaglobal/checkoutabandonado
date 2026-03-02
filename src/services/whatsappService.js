@@ -18,13 +18,21 @@ async function loadTemplate(type) {
     return parsed;
 }
 
-function renderTemplate(template, data) {
-    const base = template.parts.join('\n');
+function resolveLanguage(lead) {
+    const code = (lead.country_code || '').toUpperCase();
+    if (code === 'ES') return 'es';
+    if (code === 'FR') return 'fr';
+    if (code === 'PT' || code === 'BR') return 'pt';
+    if (code === 'BE' || code === 'CH' || code === 'LU') return 'fr';
+    return 'en';
+}
+
+function renderTemplatePart(part, template, data) {
     const merged = {
         ...template.defaults,
         ...data
     };
-    return base.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
+    return part.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
         const value = merged[key];
         return value !== undefined && value !== null ? String(value) : '';
     });
@@ -32,13 +40,14 @@ function renderTemplate(template, data) {
 
 export async function sendTemplateMessage(lead, templateType) {
     const template = await loadTemplate(templateType);
+    const language = resolveLanguage(lead);
+    const parts = template.languages?.[language] || template.languages?.en || template.parts || [];
     const discountCode = process.env.WHATSAPP_DISCOUNT_CODE || template.defaults?.discount_code || 'ORDER10';
-    const message = renderTemplate(template, {
+    const messageParts = parts.map((part) => renderTemplatePart(part, template, {
         first_name: lead.first_name || 'amigo(a)',
         product_name: lead.product_name || 'produto',
         checkout_url: lead.abandoned_checkout_url || '',
         discount_code: discountCode
-    });
-    const messageParts = [message];
+    })).filter((part) => part && part.trim() !== '');
     return sendWhatsAppMessageParts(lead, messageParts);
 }

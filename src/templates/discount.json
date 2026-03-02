@@ -1,19 +1,63 @@
 {
   "type": "discount",
-  "parts": [
-    "{{first_name}}, não queremos mesmo que percas a oportunidade de evoluir a tua arte. 🖤",
-    "",
-    "Por isso, e porque a Piranha nunca ataca sozinha, temos um presente para ti: **10% de desconto** na tua próxima compra.",
-    "",
-    "Usa o código **{{discount_code}}** no checkout. É a nossa forma de te mantermos a nadar connosco.",
-    "",
-    "⏳ **Atenção:** este código é válido por apenas **24 horas** e não acumula com outras promoções.",
-    "",
-    "Finaliza agora o teu pedido:",
-    "{{checkout_url}}",
-    "",
-    "Conta connosco para o que precisares."
-  ],
+  "languages": {
+    "pt": [
+      "{{first_name}}, não queremos mesmo que percas a oportunidade de evoluir a tua arte. 🖤",
+      "",
+      "Por isso, e porque a Piranha nunca ataca sozinha, temos um presente para ti: **10% de desconto** na tua próxima compra.",
+      "",
+      "Usa o código **{{discount_code}}** no checkout. É a nossa forma de te mantermos a nadar connosco.",
+      "",
+      "⏳ **Atenção:** este código é válido por apenas **24 horas** e não acumula com outras promoções.",
+      "",
+      "Finaliza agora o teu pedido:",
+      "{{checkout_url}}",
+      "",
+      "Conta connosco para o que precisares."
+    ],
+    "en": [
+      "{{first_name}}, we really don’t want you to miss the chance to elevate your art. 🖤",
+      "",
+      "So, because Piranha never swims alone, here’s a gift for you: **10% off** your next purchase.",
+      "",
+      "Use code **{{discount_code}}** at checkout. It’s our way of keeping you with us.",
+      "",
+      "⏳ **Attention:** this code is valid for only **24 hours** and can’t be combined with other offers.",
+      "",
+      "Finish your order now:",
+      "{{checkout_url}}",
+      "",
+      "Count on us for anything you need."
+    ],
+    "es": [
+      "{{first_name}}, no queremos que pierdas la oportunidad de elevar tu arte. 🖤",
+      "",
+      "Por eso, y porque Piranha nunca nada sola, tenemos un regalo para ti: **10% de descuento** en tu próxima compra.",
+      "",
+      "Usa el código **{{discount_code}}** en el checkout. Es nuestra forma de mantenerte con nosotros.",
+      "",
+      "⏳ **Atención:** este código es válido solo por **24 horas** y no se acumula con otras promociones.",
+      "",
+      "Finaliza ahora tu pedido:",
+      "{{checkout_url}}",
+      "",
+      "Cuenta con nosotros para lo que necesites."
+    ],
+    "fr": [
+      "{{first_name}}, nous ne voulons vraiment pas que tu rates l’occasion d’élever ton art. 🖤",
+      "",
+      "C’est pourquoi, et parce que Piranha ne nage jamais seule, nous avons un cadeau pour toi : **10% de réduction** sur ta prochaine commande.",
+      "",
+      "Utilise le code **{{discount_code}}** au checkout. C’est notre façon de te garder avec nous.",
+      "",
+      "⏳ **Attention :** ce code est valable seulement **24 heures** et ne se cumule pas avec d’autres offres.",
+      "",
+      "Finalise ta commande maintenant :",
+      "{{checkout_url}}",
+      "",
+      "Compte sur nous si tu as besoin."
+    ]
+  },
   "defaults": {
     "discount_code": "ORDER10"
   }

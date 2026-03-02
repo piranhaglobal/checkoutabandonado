@@ -1,6 +1,7 @@
 import { isWithinBusinessHours, isEligibleForSend } from '../utils/dateUtils.js';
 import { sendTemplateMessage } from '../services/whatsappService.js';
 import { alreadySentTemplate, logDispatchAttempt } from '../services/logService.js';
+import { hasOrderForLeadSince } from '../shopify/orders.js';
 
 function buildLeadFromCheckout(checkout) {
     const email = checkout.email || checkout.customer?.email || '';
@@ -58,6 +59,7 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
     let sent = 0;
     let failed = 0;
     let skipped = 0;
+    let purchased = 0;
     let noPhone = 0;
     let noEmail = 0;
 
@@ -80,6 +82,16 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
         const alreadySent = await alreadySentTemplate(lead.phone, templateType, windowDays);
         if (alreadySent) {
             skipped++;
+            continue;
+        }
+
+        const hasPurchased = await hasOrderForLeadSince({
+            email: lead.email,
+            phone: lead.phone,
+            since: abandonedAt
+        });
+        if (hasPurchased) {
+            purchased++;
             continue;
         }
 
@@ -108,5 +120,5 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
     }
 
     console.log(`[WhatsAppJob] Template: ${templateType}`);
-    console.log(`[WhatsAppJob] Sent: ${sent} | Failed: ${failed} | Skipped: ${skipped} | No phone: ${noPhone} | No email: ${noEmail}`);
+    console.log(`[WhatsAppJob] Sent: ${sent} | Failed: ${failed} | Skipped: ${skipped} | Purchased: ${purchased} | No phone: ${noPhone} | No email: ${noEmail}`);
 }
