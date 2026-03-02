@@ -38,6 +38,26 @@ function renderTemplatePart(part, template, data) {
     });
 }
 
+function buildMessageBlocks(parts, template, data) {
+    const blocks = [];
+    let current = [];
+    for (const part of parts) {
+        const rendered = renderTemplatePart(part, template, data).trim();
+        if (!rendered) {
+            if (current.length > 0) {
+                blocks.push(current.join('\n'));
+                current = [];
+            }
+            continue;
+        }
+        current.push(rendered);
+    }
+    if (current.length > 0) {
+        blocks.push(current.join('\n'));
+    }
+    return blocks.join('\n\n');
+}
+
 export async function sendTemplateMessage(lead, templateType) {
     const template = await loadTemplate(templateType);
     const language = resolveLanguage(lead);
@@ -53,11 +73,11 @@ export async function sendTemplateMessage(lead, templateType) {
         en: 'friend'
     };
     const fallbackName = names[language] || 'friend';
-    const message = parts.map((part) => renderTemplatePart(part, template, {
+    const message = buildMessageBlocks(parts, template, {
         first_name: lead.first_name || fallbackName,
         product_name: lead.product_name || 'produto',
         checkout_url: lead.abandoned_checkout_url || '',
         discount_code: discountCode
-    })).filter((part) => part && part.trim() !== '').join('\n');
+    });
     return sendWhatsAppMessageParts(lead, [message]);
 }
