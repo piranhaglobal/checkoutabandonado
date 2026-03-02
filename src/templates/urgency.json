@@ -2,12 +2,12 @@
   "type": "urgency",
   "languages": {
     "pt": [
-      "Olá {{first_name}}, cá estamos de novo! 🏴‍☠️",
+      "Olá {{first_name}}, cá estamos de novo! 🎨🖤",
       "",
       "O teu {{product_name}} continua no carrinho e é um dos artigos mais procurados do momento.",
       "",
-      "Se não finalizares a compra, o stock será libertado dentro de **6 horas**.",
-      "Se garantires o teu hoje, enviamos ainda nas próximas **24 horas** com **envio gratuito** incluído.",
+      "Se não finalizares a compra, o stock será libertado dentro de *6 horas*.",
+      "Se garantires o teu hoje, enviamos ainda nas próximas *24 horas*.",
       "",
       "Não deixes a corrente levar a tua arte:",
       "{{checkout_url}}",
@@ -15,12 +15,12 @@
       "Qualquer dúvida, é só responder. Estamos aqui para ajudar."
     ],
     "en": [
-      "Hi {{first_name}}, we’re back again! 🏴‍☠️",
+      "Hi {{first_name}}, we’re back again! 🎨🖤",
       "",
       "Your {{product_name}} is still in the cart and it’s one of the most wanted items right now.",
       "",
-      "If you don’t complete the purchase, the stock will be released within **6 hours**.",
-      "If you secure yours today, we’ll ship within the next **24 hours** with **free shipping** included.",
+      "If you don’t complete the purchase, the stock will be released within *6 hours*.",
+      "If you secure yours today, we’ll ship within the next *24 hours*.",
       "",
       "Don’t let the current take your art away:",
       "{{checkout_url}}",
@@ -28,12 +28,12 @@
       "If you need anything, just reply. We’re here to help."
     ],
     "es": [
-      "¡Hola {{first_name}}, aquí estamos de nuevo! 🏴‍☠️",
+      "¡Hola {{first_name}}, aquí estamos de nuevo! 🎨🖤",
       "",
       "Tu {{product_name}} sigue en el carrito y es uno de los artículos más buscados del momento.",
       "",
       "Si no finalizas la compra, el stock se liberará en **6 horas**.",
-      "Si lo aseguras hoy, enviamos en las próximas **24 horas** con **envío gratis** incluido.",
+      "Si lo aseguras hoy, enviamos en las próximas *24 horas*.",
       "",
       "No dejes que la corriente se lleve tu arte:",
       "{{checkout_url}}",
@@ -41,12 +41,12 @@
       "Cualquier duda, responde por aquí. Estamos para ayudarte."
     ],
     "fr": [
-      "Bonjour {{first_name}}, nous revoilà ! 🏴‍☠️",
+      "Bonjour {{first_name}}, nous revoilà ! 🎨🖤",
       "",
       "Votre {{product_name}} est toujours dans le panier et c’est l’un des articles les plus demandés du moment.",
       "",
-      "Si vous ne finalisez pas l’achat, le stock sera libéré dans **6 heures**.",
-      "Si vous le confirmez aujourd’hui, nous expédions sous **24 heures** avec **livraison gratuite**.",
+      "Si vous ne finalisez pas l’achat, le stock sera libéré dans *6 heures*.",
+      "Si vous le confirmez aujourd’hui, nous expédions sous *24 heures*.",
       "",
       "Ne laissez pas le courant emporter votre art :",
       "{{checkout_url}}",
