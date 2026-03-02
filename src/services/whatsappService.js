@@ -32,10 +32,11 @@ function renderTemplatePart(part, template, data) {
         ...template.defaults,
         ...data
     };
-    return part.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
+    const rendered = part.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
         const value = merged[key];
         return value !== undefined && value !== null ? String(value) : '';
     });
+    return rendered.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n');
 }
 
 export async function sendTemplateMessage(lead, templateType) {
