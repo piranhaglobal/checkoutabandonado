@@ -1,0 +1,16 @@
+{
+  "type": "urgency",
+  "parts": [
+    "Olá {{first_name}}, cá estamos de novo! 🏴‍☠️",
+    "",
+    "O teu {{product_name}} continua no carrinho e é um dos artigos mais procurados do momento.",
+    "",
+    "Se não finalizares a compra, o stock será libertado dentro de **6 horas**.",
+    "Se garantires o teu hoje, enviamos ainda nas próximas **24 horas** com **envio gratuito** incluído.",
+    "",
+    "Não deixes a corrente levar a tua arte:",
+    "{{checkout_url}}",
+    "",
+    "Qualquer dúvida, é só responder. Estamos aqui para ajudar."
+  ]
+}

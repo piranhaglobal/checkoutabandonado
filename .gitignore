@@ -2,3 +2,7 @@ node_modules
 data/checkouts.sqlite
 .env
 *.log
+.ssh_github
+.ssh_github.pub
+.ssh_vps
+.ssh_vps.pub

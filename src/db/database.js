@@ -14,6 +14,24 @@ const db = new sqlite3.Database(dbPath, (err) => {
         console.log('Connected to the SQLite database.');
 
         db.serialize(() => {
+            db.run(`CREATE TABLE IF NOT EXISTS whatsapp_dispatch_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                phone TEXT NOT NULL,
+                email TEXT,
+                template_type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                error_message TEXT,
+                lead_data TEXT,
+                checkout_abandoned_at DATETIME,
+                dispatched_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`);
+
+            db.run(`CREATE INDEX IF NOT EXISTS idx_whatsapp_log_phone_template_date
+                ON whatsapp_dispatch_log(phone, template_type, dispatched_at)`);
+
+            db.run(`CREATE INDEX IF NOT EXISTS idx_whatsapp_log_email_abandoned
+                ON whatsapp_dispatch_log(email, checkout_abandoned_at)`);
+
             db.run(`CREATE TABLE IF NOT EXISTS whatsapp_dispatches (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL,
@@ -32,7 +50,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 export function hasWhatsAppBeenSent(email, abandonedDate) {
     return new Promise((resolve, reject) => {
         db.get(
-            'SELECT id FROM whatsapp_dispatches WHERE email = ? AND checkout_abandoned_at = ?',
+            'SELECT id FROM whatsapp_dispatch_log WHERE email = ? AND checkout_abandoned_at = ?',
             [email, abandonedDate],
             (err, row) => {
                 if (err) reject(err);
@@ -43,14 +61,40 @@ export function hasWhatsAppBeenSent(email, abandonedDate) {
 }
 
 export function logWhatsAppDispatch(data) {
+    const templateType = data.template_type || 'legacy';
+    const status = data.status || 'SENT';
+    const leadData = data.lead_data ? JSON.stringify(data.lead_data) : null;
     return new Promise((resolve, reject) => {
         db.run(
-            `INSERT INTO whatsapp_dispatches (email, phone, status, checkout_abandoned_at)
-             VALUES (?, ?, ?, ?)`,
-            [data.email, data.phone, data.status, data.checkout_abandoned_at],
+            `INSERT INTO whatsapp_dispatch_log (email, phone, template_type, status, error_message, lead_data, checkout_abandoned_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [
+                data.email || null,
+                data.phone,
+                templateType,
+                status,
+                data.error_message || null,
+                leadData,
+                data.checkout_abandoned_at || null
+            ],
             function (err) {
                 if (err) reject(err);
                 resolve(this.lastID);
+            }
+        );
+    });
+}
+
+export function hasTemplateBeenSentWithinDays(phone, templateType, days) {
+    return new Promise((resolve, reject) => {
+        db.get(
+            `SELECT id FROM whatsapp_dispatch_log
+             WHERE phone = ? AND template_type = ? AND dispatched_at >= datetime('now', ?)
+             ORDER BY dispatched_at DESC LIMIT 1`,
+            [phone, templateType, `-${days} days`],
+            (err, row) => {
+                if (err) reject(err);
+                resolve(!!row);
             }
         );
     });

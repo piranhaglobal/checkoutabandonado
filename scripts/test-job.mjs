@@ -5,10 +5,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { runDailyRecoveryJob } from '../src/jobs/dailyAbandonedCheckoutJob.js';
+import { runUrgencyJob } from '../src/jobs/sendUrgencyMessages.js';
+import { runDiscountJob } from '../src/jobs/sendDiscountMessages.js';
 
 console.log('='.repeat(60));
-console.log('  PIRANHA - TEST: Daily Abandoned Checkout Job');
+console.log('  PIRANHA - TEST: WhatsApp Jobs');
 console.log('='.repeat(60));
 console.log(`  Store:     ${process.env.SHOPIFY_STORE_URL}`);
 console.log(`  Timestamp: ${new Date().toISOString()}`);
@@ -16,7 +17,8 @@ console.log('='.repeat(60));
 console.log('');
 
 try {
-    await runDailyRecoveryJob();
+    await runUrgencyJob();
+    await runDiscountJob();
     console.log('\n✅ Script finished successfully.');
 } catch (err) {
     console.error('\n❌ Script failed with error:', err.message);

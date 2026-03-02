@@ -170,41 +170,28 @@ function buildMessageParts(lead) {
     return picked.filter(Boolean);
 }
 
-/**
- * Sends a WhatsApp message to a single lead via Evolution API.
- *
- * @param {object} lead
- * @param {string} lead.phone                  - Raw phone number
- * @param {string} lead.first_name
- * @param {string} lead.email
- * @param {string} [lead.abandoned_checkout_url]
- * @returns {Promise<boolean>} - true if sent, false if failed
- */
-export async function sendWhatsAppRecovery(lead) {
+export async function sendWhatsAppMessageParts(lead, messageParts) {
     const apiUrl = process.env.EVOLUTION_API_URL;
     const apiKey = process.env.EVOLUTION_API_KEY;
     const instanceName = process.env.EVOLUTION_INSTANCE_NAME;
 
-    // Guard: gracefully fail if Evolution API is not yet configured (pre-VPS)
     if (!apiUrl || !apiKey || !instanceName) {
         console.warn(
             `[WhatsApp] ⚠️  Evolution API not configured yet (VPS not set up). ` +
             `Skipping send for ${lead.email}. ` +
             `Set EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_INSTANCE_NAME when ready.`
         );
-        return false;
+        return { success: false, status: 'FAILED', error: 'Missing Evolution API configuration.' };
     }
 
     const phone = formatPhone(lead.phone);
     if (!phone) {
         console.warn(`[WhatsApp] 📵 Invalid or missing phone for ${lead.email}. Skipping.`);
-        return false;
+        return { success: false, status: 'FAILED', error: 'Invalid phone.' };
     }
 
-    const messageParts = buildMessageParts(lead);
-
-    // Evolution API 2.0 endpoint: POST /message/sendText/{instance}
     const endpoint = `${apiUrl.replace(/\/$/, '')}/message/sendText/${instanceName}`;
+    let lastStatus = 'PENDING';
 
     for (const part of messageParts) {
         let retries = 3;
@@ -243,6 +230,12 @@ export async function sendWhatsAppRecovery(lead) {
 
                 if (responseText) {
                     console.log(`[WhatsApp] Response: ${responseText}`);
+                    try {
+                        const parsed = JSON.parse(responseText);
+                        if (parsed.status) lastStatus = parsed.status;
+                    } catch (err) {
+                        lastStatus = lastStatus;
+                    }
                 }
 
                 break;
@@ -251,7 +244,7 @@ export async function sendWhatsAppRecovery(lead) {
                 retries--;
                 if (retries === 0) {
                     console.error(`[WhatsApp] ❌ Failed to send to ${lead.email} after retries:`, error.message);
-                    return false;
+                    return { success: false, status: 'FAILED', error: error.message };
                 }
                 console.warn(`[WhatsApp] Retrying in ${delay}ms...`);
                 await new Promise(r => setTimeout(r, delay));
@@ -263,7 +256,23 @@ export async function sendWhatsAppRecovery(lead) {
     }
 
     console.log(`[WhatsApp] ✅ Sent to ${lead.email} (${phone})`);
-    return true;
+    return { success: true, status: lastStatus, error: null };
+}
+
+/**
+ * Sends a WhatsApp message to a single lead via Evolution API.
+ *
+ * @param {object} lead
+ * @param {string} lead.phone                  - Raw phone number
+ * @param {string} lead.first_name
+ * @param {string} lead.email
+ * @param {string} [lead.abandoned_checkout_url]
+ * @returns {Promise<boolean>} - true if sent, false if failed
+ */
+export async function sendWhatsAppRecovery(lead) {
+    const messageParts = buildMessageParts(lead);
+    const result = await sendWhatsAppMessageParts(lead, messageParts);
+    return result.success;
 }
 
 /**

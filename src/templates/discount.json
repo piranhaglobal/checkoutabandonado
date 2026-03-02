@@ -1,0 +1,20 @@
+{
+  "type": "discount",
+  "parts": [
+    "{{first_name}}, não queremos mesmo que percas a oportunidade de evoluir a tua arte. 🖤",
+    "",
+    "Por isso, e porque a Piranha nunca ataca sozinha, temos um presente para ti: **10% de desconto** na tua próxima compra.",
+    "",
+    "Usa o código **{{discount_code}}** no checkout. É a nossa forma de te mantermos a nadar connosco.",
+    "",
+    "⏳ **Atenção:** este código é válido por apenas **24 horas** e não acumula com outras promoções.",
+    "",
+    "Finaliza agora o teu pedido:",
+    "{{checkout_url}}",
+    "",
+    "Conta connosco para o que precisares."
+  ],
+  "defaults": {
+    "discount_code": "ORDER10"
+  }
+}

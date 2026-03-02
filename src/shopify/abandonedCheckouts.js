@@ -1,4 +1,5 @@
 import { getShopifyAccessToken } from './auth.js';
+import { getDayRangeForDaysAgo, getDayRangeForDaysAgoWindow } from '../utils/dateUtils.js';
 
 /**
  * Fetches all abandoned checkouts from Shopify for a given date range.
@@ -88,5 +89,12 @@ export async function fetchYesterdaysAbandonedCheckouts() {
     const dateMin = `${yesterday.toISOString().slice(0, 10)}T00:00:00`;
     const dateMax = `${yesterday.toISOString().slice(0, 10)}T23:59:59`;
 
+    return fetchAbandonedCheckouts(dateMin, dateMax);
+}
+
+export async function fetchAbandonedCheckoutsByDaysAgo(daysAgo, tz, windowDays = 1) {
+    const { dateMin, dateMax } = windowDays > 1
+        ? getDayRangeForDaysAgoWindow(daysAgo, windowDays, tz)
+        : getDayRangeForDaysAgo(daysAgo, tz);
     return fetchAbandonedCheckouts(dateMin, dateMax);
 }
