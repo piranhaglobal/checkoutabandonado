@@ -22,11 +22,51 @@
  * @param {string} raw - Raw phone number from Klaviyo/Shopify
  * @returns {string|null} - Formatted phone or null if invalid
  */
-function formatPhone(raw) {
+const COUNTRY_DIALING_CODES = {
+    PT: '351',
+    ES: '34',
+    FR: '33',
+    BR: '55',
+    BE: '32',
+    CH: '41',
+    LU: '352',
+    US: '1',
+    GB: '44',
+    DE: '49',
+    IT: '39',
+    NL: '31'
+};
+
+function resolveDialingCode(countryCode) {
+    if (!countryCode) return null;
+    const code = String(countryCode).toUpperCase();
+    return COUNTRY_DIALING_CODES[code] || null;
+}
+
+function stripLeadingZeros(digits) {
+    return digits.replace(/^0+/, '') || digits;
+}
+
+function formatPhone(raw, countryCode) {
     if (!raw) return null;
 
     // Strip everything except digits
-    const digits = raw.replace(/\D/g, '');
+    let digits = raw.replace(/\D/g, '');
+    if (!digits) return null;
+
+    if (digits.startsWith('00')) {
+        digits = digits.slice(2);
+    }
+
+    const dialingCode = resolveDialingCode(countryCode);
+    if (dialingCode) {
+        const cleanedLocal = stripLeadingZeros(digits);
+        if (!cleanedLocal.startsWith(dialingCode)) {
+            digits = `${dialingCode}${cleanedLocal}`;
+        } else {
+            digits = cleanedLocal;
+        }
+    }
 
     // Minimum viable phone number (country code + local number)
     if (digits.length < 8) return null;
@@ -184,7 +224,7 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
         return { success: false, status: 'FAILED', error: 'Missing Evolution API configuration.' };
     }
 
-    const phone = formatPhone(lead.phone);
+    const phone = formatPhone(lead.phone, lead.country_code);
     if (!phone) {
         console.warn(`[WhatsApp] 📵 Invalid or missing phone for ${lead.email}. Skipping.`);
         return { success: false, status: 'FAILED', error: 'Invalid phone.' };
