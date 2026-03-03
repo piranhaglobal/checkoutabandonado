@@ -39,6 +39,19 @@ function renderTemplatePart(part, template, data) {
     return rendered.replace(/\\n\\n/g, '\n\n').replace(/\\n/g, '\n');
 }
 
+function applyDiscountToCheckoutUrl(url, discountCode) {
+    if (!url || !discountCode) return url;
+    try {
+        const parsed = new URL(url);
+        parsed.searchParams.set('discount', discountCode);
+        return parsed.toString();
+    } catch (error) {
+        if (url.includes('discount=')) return url;
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}discount=${encodeURIComponent(discountCode)}`;
+    }
+}
+
 export async function sendTemplateMessage(lead, templateType) {
     const template = await loadTemplate(templateType);
     const language = resolveLanguage(lead);
@@ -47,6 +60,7 @@ export async function sendTemplateMessage(lead, templateType) {
         ? languageParts[Math.floor(Math.random() * languageParts.length)]
         : languageParts;
     const discountCode = process.env.WHATSAPP_DISCOUNT_CODE || template.defaults?.discount_code || 'ORDER10';
+    const discountCodeForUrl = String(discountCode || '').toLowerCase();
     const names = {
         pt: 'amigo(a)',
         es: 'amigo(a)',
@@ -54,25 +68,28 @@ export async function sendTemplateMessage(lead, templateType) {
         en: 'friend'
     };
     const fallbackName = names[language] || 'friend';
+    const checkoutUrl = templateType === 'discount'
+        ? applyDiscountToCheckoutUrl(lead.abandoned_checkout_url || '', discountCodeForUrl)
+        : (lead.abandoned_checkout_url || '');
     const message = typeof parts === 'string'
         ? renderTemplatePart(parts, template, {
             first_name: lead.first_name || fallbackName,
             product_name: lead.product_name || 'produto',
-            checkout_url: lead.abandoned_checkout_url || '',
+            checkout_url: checkoutUrl,
             discount_code: discountCode
         })
         : parts
             .map((part) => renderTemplatePart(part, template, {
                 first_name: lead.first_name || fallbackName,
                 product_name: lead.product_name || 'produto',
-                checkout_url: lead.abandoned_checkout_url || '',
+                checkout_url: checkoutUrl,
                 discount_code: discountCode
             }))
             .filter((part) => part && part.trim() !== '')
             .join('\n\n');
     const messageParts = [message];
-    if (lead.abandoned_checkout_url) {
-        messageParts.push(lead.abandoned_checkout_url);
+    if (checkoutUrl) {
+        messageParts.push(checkoutUrl);
     }
     return sendWhatsAppMessageParts(lead, messageParts);
 }
