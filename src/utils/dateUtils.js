@@ -36,10 +36,20 @@ export function isWithinBusinessHours(date, tz, startHour, endHour) {
 
 export function isEligibleForSend(abandonedAt, now, days, tz, startHour, endHour) {
     if (!isWithinBusinessHours(now, tz, startHour, endHour)) return false;
-    const target = new Date(abandonedAt.getTime() + days * 24 * 60 * 60 * 1000);
     const nowTz = toTzDate(now, tz);
-    const targetTz = toTzDate(target, tz);
-    return targetTz <= nowTz;
+    const abandonedTz = toTzDate(abandonedAt, tz);
+    const targetDate = new Date(Date.UTC(
+        abandonedTz.getUTCFullYear(),
+        abandonedTz.getUTCMonth(),
+        abandonedTz.getUTCDate()
+    ));
+    targetDate.setUTCDate(targetDate.getUTCDate() + days);
+    const nowDate = new Date(Date.UTC(
+        nowTz.getUTCFullYear(),
+        nowTz.getUTCMonth(),
+        nowTz.getUTCDate()
+    ));
+    return nowDate >= targetDate;
 }
 
 export function getDayRangeForDaysAgo(daysAgo, tz, baseDate = new Date()) {
