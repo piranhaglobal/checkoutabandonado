@@ -95,6 +95,73 @@ function rand(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function getEvolutionBaseUrl(apiUrl) {
+    return apiUrl.replace(/\/$/, '');
+}
+
+function isErrorUpdateStatus(status) {
+    if (status === undefined || status === null) return false;
+    if (typeof status === 'number') return status === 0;
+    const normalized = String(status).toUpperCase();
+    return normalized === 'ERROR' || normalized === 'FAILED';
+}
+
+async function fetchMessageUpdates({ apiUrl, apiKey, instanceName, remoteJid, messageId }) {
+    const endpoint = `${getEvolutionBaseUrl(apiUrl)}/chat/findMessages/${instanceName}`;
+    const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            apikey: apiKey,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            where: {
+                key: {
+                    remoteJid,
+                    id: messageId
+                }
+            },
+            limit: 1,
+            orderBy: {
+                messageTimestamp: 'desc'
+            }
+        })
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Evolution API findMessages error: ${response.status} - ${text}`);
+    }
+
+    const payload = await response.json();
+    const record = payload?.messages?.records?.[0];
+    return Array.isArray(record?.MessageUpdate) ? record.MessageUpdate : [];
+}
+
+async function resolveFinalMessageStatus({ apiUrl, apiKey, instanceName, remoteJid, messageId }) {
+    const attempts = parseInt(process.env.EVOLUTION_STATUS_POLL_ATTEMPTS || '4', 10);
+    const intervalMs = parseInt(process.env.EVOLUTION_STATUS_POLL_INTERVAL_MS || '1200', 10);
+    let latestStatus = null;
+
+    for (let i = 0; i < attempts; i++) {
+        const updates = await fetchMessageUpdates({ apiUrl, apiKey, instanceName, remoteJid, messageId });
+        if (updates.length > 0) {
+            latestStatus = updates[updates.length - 1]?.status ?? null;
+            if (isErrorUpdateStatus(latestStatus)) {
+                return { status: latestStatus, isError: true };
+            }
+            if (latestStatus !== null && latestStatus !== undefined) {
+                return { status: latestStatus, isError: false };
+            }
+        }
+        if (i < attempts - 1) {
+            await new Promise(r => setTimeout(r, intervalMs));
+        }
+    }
+
+    return { status: latestStatus, isError: false };
+}
+
 function buildMessageParts(lead) {
     const coupon = process.env.WHATSAPP_COUPON_CODE || 'PIRANHA5';
     const discount = process.env.WHATSAPP_DISCOUNT_PERCENT || '5';
@@ -230,8 +297,9 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
         return { success: false, status: 'FAILED', error: 'Invalid phone.' };
     }
 
-    const endpoint = `${apiUrl.replace(/\/$/, '')}/message/sendText/${instanceName}`;
+    const endpoint = `${getEvolutionBaseUrl(apiUrl)}/message/sendText/${instanceName}`;
     let lastStatus = 'PENDING';
+    const sentMessageRefs = [];
 
     for (const part of messageParts) {
         let retries = 3;
@@ -273,6 +341,11 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
                     try {
                         const parsed = JSON.parse(responseText);
                         if (parsed.status) lastStatus = parsed.status;
+                        const messageId = parsed?.key?.id;
+                        const remoteJid = parsed?.key?.remoteJid;
+                        if (messageId && remoteJid) {
+                            sentMessageRefs.push({ messageId, remoteJid });
+                        }
                     } catch (err) {
                         lastStatus = lastStatus;
                     }
@@ -293,6 +366,25 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
         }
 
         await new Promise(r => setTimeout(r, 200));
+    }
+
+    for (const ref of sentMessageRefs) {
+        try {
+            const finalState = await resolveFinalMessageStatus({
+                apiUrl,
+                apiKey,
+                instanceName,
+                remoteJid: ref.remoteJid,
+                messageId: ref.messageId
+            });
+            if (isErrorUpdateStatus(finalState.status) || finalState.isError) {
+                const errorMessage = `Delivery rejected by WhatsApp (status=${finalState.status ?? 'unknown'})`;
+                console.error(`[WhatsApp] ❌ ${errorMessage} for ${lead.email} (${ref.remoteJid}).`);
+                return { success: false, status: 'FAILED', error: errorMessage };
+            }
+        } catch (error) {
+            console.warn(`[WhatsApp] Could not verify delivery state for ${lead.email}: ${error.message}`);
+        }
     }
 
     console.log(`[WhatsApp] ✅ Sent to ${lead.email} (${phone})`);
