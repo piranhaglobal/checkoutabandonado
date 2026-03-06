@@ -35,10 +35,11 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
     const tz = process.env.DISPATCH_TZ || 'Europe/Lisbon';
     const startHour = parseInt(process.env.DISPATCH_START_HOUR || '9', 10);
     const endHour = parseInt(process.env.DISPATCH_END_HOUR || '18', 10);
+    const includeWeekends = String(process.env.DISPATCH_INCLUDE_WEEKENDS || 'false').toLowerCase() === 'true';
     const windowDays = parseInt(process.env.WHATSAPP_TEMPLATE_WINDOW_DAYS || '30', 10);
     const now = new Date();
 
-    if (!isWithinBusinessHours(now, tz, startHour, endHour)) {
+    if (!isWithinBusinessHours(now, tz, startHour, endHour, includeWeekends)) {
         console.log(`[WhatsAppJob] Outside business hours ${startHour}:00-${endHour}:00 ${tz}.`);
         return;
     }
@@ -75,7 +76,7 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
         }
 
         const abandonedAt = new Date(checkout.created_at);
-        if (!isEligibleForSend(abandonedAt, now, daysAgo, tz, startHour, endHour)) {
+        if (!isEligibleForSend(abandonedAt, now, daysAgo, tz, startHour, endHour, includeWeekends)) {
             continue;
         }
 

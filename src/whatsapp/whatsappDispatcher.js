@@ -300,6 +300,11 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
     const endpoint = `${getEvolutionBaseUrl(apiUrl)}/message/sendText/${instanceName}`;
     let lastStatus = 'PENDING';
     const sentMessageRefs = [];
+    const configuredPartMinSec = parseInt(process.env.PARTS_MIN_DELAY_SEC || '5', 10);
+    const configuredPartMaxSec = parseInt(process.env.PARTS_MAX_DELAY_SEC || '45', 10);
+    const partMinSec = Math.max(0, Math.min(60, Number.isFinite(configuredPartMinSec) ? configuredPartMinSec : 5));
+    const partMaxSecRaw = Math.max(0, Math.min(60, Number.isFinite(configuredPartMaxSec) ? configuredPartMaxSec : 45));
+    const partMaxSec = Math.max(partMinSec, partMaxSecRaw);
 
     for (const part of messageParts) {
         let retries = 3;
@@ -365,7 +370,8 @@ export async function sendWhatsAppMessageParts(lead, messageParts) {
             }
         }
 
-        await new Promise(r => setTimeout(r, 200));
+        const partDelayMs = rand(partMinSec, partMaxSec) * 1000;
+        await new Promise(r => setTimeout(r, partDelayMs));
     }
 
     for (const ref of sentMessageRefs) {

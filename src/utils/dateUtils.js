@@ -21,21 +21,22 @@ export function toTzDate(date, tz) {
     return new Date(Date.UTC(year, month, day, hour, minute, second));
 }
 
-export function isBusinessDay(date, tz) {
+export function isBusinessDay(date, tz, includeWeekends = false) {
+    if (includeWeekends) return true;
     const d = toTzDate(date, tz);
     const day = d.getUTCDay();
     return day >= 1 && day <= 5;
 }
 
-export function isWithinBusinessHours(date, tz, startHour, endHour) {
-    if (!isBusinessDay(date, tz)) return false;
+export function isWithinBusinessHours(date, tz, startHour, endHour, includeWeekends = false) {
+    if (!isBusinessDay(date, tz, includeWeekends)) return false;
     const d = toTzDate(date, tz);
     const hour = d.getUTCHours();
     return hour >= startHour && hour < endHour;
 }
 
-export function isEligibleForSend(abandonedAt, now, days, tz, startHour, endHour) {
-    if (!isWithinBusinessHours(now, tz, startHour, endHour)) return false;
+export function isEligibleForSend(abandonedAt, now, days, tz, startHour, endHour, includeWeekends = false) {
+    if (!isWithinBusinessHours(now, tz, startHour, endHour, includeWeekends)) return false;
     const nowTz = toTzDate(now, tz);
     const abandonedTz = toTzDate(abandonedAt, tz);
     const targetDate = new Date(Date.UTC(
