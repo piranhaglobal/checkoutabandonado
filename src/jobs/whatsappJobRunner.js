@@ -1,6 +1,6 @@
 import { isWithinBusinessHours, isEligibleForSend } from '../utils/dateUtils.js';
 import { sendTemplateMessage } from '../services/whatsappService.js';
-import { acquireLeadDispatchLock, alreadySentTemplate, logDispatchAttempt } from '../services/logService.js';
+import { acquireLeadDispatchLock, alreadySentTemplate, alreadySentTemplateForEmail, logDispatchAttempt } from '../services/logService.js';
 import { hasOrderForLeadSince } from '../shopify/orders.js';
 
 const COUNTRY_DIALING_CODES = {
@@ -115,6 +115,11 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
         const lockPhone = normalizePhoneKey(lead.phone, lead.country_code) || lead.phone;
         const alreadySent = await alreadySentTemplate(lockPhone, templateType, windowDays);
         if (alreadySent) {
+            skipped++;
+            continue;
+        }
+        const alreadySentByEmail = await alreadySentTemplateForEmail(lead.email, templateType, windowDays);
+        if (alreadySentByEmail) {
             skipped++;
             continue;
         }

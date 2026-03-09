@@ -1,4 +1,4 @@
-import { acquireDispatchLock, hasTemplateBeenSentWithinDays, logWhatsAppDispatch } from '../db/database.js';
+import { acquireDispatchLock, hasTemplateBeenSentForEmailWithinDays, hasTemplateBeenSentWithinDays, logWhatsAppDispatch } from '../db/database.js';
 
 function normalizePhone(phone) {
     return String(phone || '').replace(/\D/g, '');
@@ -6,6 +6,10 @@ function normalizePhone(phone) {
 
 export async function alreadySentTemplate(phone, templateType, windowDays) {
     return hasTemplateBeenSentWithinDays(phone, templateType, windowDays);
+}
+
+export async function alreadySentTemplateForEmail(email, templateType, windowDays) {
+    return hasTemplateBeenSentForEmailWithinDays(email, templateType, windowDays);
 }
 
 export async function logDispatchAttempt({ phone, email, templateType, status, errorMessage, leadData, abandonedAt }) {

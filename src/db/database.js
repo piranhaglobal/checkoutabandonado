@@ -63,6 +63,10 @@ function normalizePhone(phone) {
     return String(phone || '').replace(/\D/g, '');
 }
 
+function normalizeEmail(email) {
+    return String(email || '').trim().toLowerCase();
+}
+
 export function hasWhatsAppBeenSent(email, abandonedDate) {
     return new Promise((resolve, reject) => {
         db.get(
@@ -119,6 +123,30 @@ export function hasTemplateBeenSentWithinDays(phone, templateType, days) {
                     return;
                 }
                 const found = rows.some((row) => normalizePhone(row.phone) === targetPhone);
+                resolve(found);
+            }
+        );
+    });
+}
+
+export function hasTemplateBeenSentForEmailWithinDays(email, templateType, days) {
+    return new Promise((resolve, reject) => {
+        const targetEmail = normalizeEmail(email);
+        if (!targetEmail) {
+            resolve(false);
+            return;
+        }
+        db.all(
+            `SELECT email FROM whatsapp_dispatch_log
+             WHERE template_type = ? AND dispatched_at >= datetime('now', ?)
+             ORDER BY dispatched_at DESC`,
+            [templateType, `-${days} days`],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const found = rows.some((row) => normalizeEmail(row.email) === targetEmail);
                 resolve(found);
             }
         );
