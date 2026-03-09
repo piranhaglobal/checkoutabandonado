@@ -59,6 +59,10 @@ const db = new sqlite3.Database(dbPath, (err) => {
     }
 });
 
+function normalizePhone(phone) {
+    return String(phone || '').replace(/\D/g, '');
+}
+
 export function hasWhatsAppBeenSent(email, abandonedDate) {
     return new Promise((resolve, reject) => {
         db.get(
@@ -99,14 +103,23 @@ export function logWhatsAppDispatch(data) {
 
 export function hasTemplateBeenSentWithinDays(phone, templateType, days) {
     return new Promise((resolve, reject) => {
-        db.get(
-            `SELECT id FROM whatsapp_dispatch_log
-             WHERE phone = ? AND template_type = ? AND dispatched_at >= datetime('now', ?)
-             ORDER BY dispatched_at DESC LIMIT 1`,
-            [phone, templateType, `-${days} days`],
-            (err, row) => {
-                if (err) reject(err);
-                resolve(!!row);
+        const targetPhone = normalizePhone(phone);
+        if (!targetPhone) {
+            resolve(false);
+            return;
+        }
+        db.all(
+            `SELECT phone FROM whatsapp_dispatch_log
+             WHERE template_type = ? AND dispatched_at >= datetime('now', ?)
+             ORDER BY dispatched_at DESC`,
+            [templateType, `-${days} days`],
+            (err, rows) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const found = rows.some((row) => normalizePhone(row.phone) === targetPhone);
+                resolve(found);
             }
         );
     });
