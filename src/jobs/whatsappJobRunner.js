@@ -3,6 +3,21 @@ import { sendTemplateMessage } from '../services/whatsappService.js';
 import { acquireLeadDispatchLock, alreadySentTemplate, logDispatchAttempt } from '../services/logService.js';
 import { hasOrderForLeadSince } from '../shopify/orders.js';
 
+const COUNTRY_DIALING_CODES = {
+    PT: '351',
+    ES: '34',
+    FR: '33',
+    BR: '55',
+    BE: '32',
+    CH: '41',
+    LU: '352',
+    US: '1',
+    GB: '44',
+    DE: '49',
+    IT: '39',
+    NL: '31'
+};
+
 function buildLeadFromCheckout(checkout) {
     const email = checkout.email || checkout.customer?.email || '';
     const phone = checkout.phone
@@ -31,8 +46,21 @@ function buildLeadFromCheckout(checkout) {
     };
 }
 
-function normalizePhoneKey(phone) {
-    return String(phone || '').replace(/\D/g, '');
+function normalizePhoneKey(phone, countryCode) {
+    let digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('00')) {
+        digits = digits.slice(2);
+    }
+    const dialCode = COUNTRY_DIALING_CODES[String(countryCode || '').toUpperCase()] || '';
+    if (dialCode) {
+        const local = digits.replace(/^0+/, '') || digits;
+        if (!local.startsWith(dialCode)) {
+            return `${dialCode}${local}`;
+        }
+        return local;
+    }
+    return digits;
 }
 
 export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) {
@@ -84,7 +112,7 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
             continue;
         }
 
-        const lockPhone = normalizePhoneKey(lead.phone) || lead.phone;
+        const lockPhone = normalizePhoneKey(lead.phone, lead.country_code) || lead.phone;
         const alreadySent = await alreadySentTemplate(lockPhone, templateType, windowDays);
         if (alreadySent) {
             skipped++;
