@@ -12,7 +12,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { sendWhatsAppRecovery } from '../src/whatsapp/whatsappDispatcher.js';
+import { sendTemplateMessage } from '../src/services/whatsappService.js';
 
 // ── Edit this to your test phone number ────────────────────────────────────
 const TEST_PHONE = '+351965559253'; // ← Change to your number
@@ -25,13 +25,13 @@ const TEST_LEAD = {
 };
 // ───────────────────────────────────────────────────────────────────────────
 
-console.log('🧪 Testing WhatsApp Dispatcher...');
+console.log('🧪 Testing WhatsApp Dispatcher (discount template)...');
 console.log(`📱 Sending to: ${TEST_PHONE}`);
 console.log('─'.repeat(50));
 
-sendWhatsAppRecovery(TEST_LEAD)
-    .then(success => {
-        if (success) {
+sendTemplateMessage(TEST_LEAD, 'discount')
+    .then(result => {
+        if (result.success) {
             console.log('\n✅ Test passed! WhatsApp message sent successfully.');
         } else {
             console.log('\n⚠️  Test complete, but message was not sent.');
