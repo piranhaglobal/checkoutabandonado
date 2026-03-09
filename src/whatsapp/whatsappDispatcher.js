@@ -163,8 +163,8 @@ async function resolveFinalMessageStatus({ apiUrl, apiKey, instanceName, remoteJ
 }
 
 function buildMessageParts(lead) {
-    const coupon = process.env.WHATSAPP_COUPON_CODE || 'PIRANHA5';
-    const discount = process.env.WHATSAPP_DISCOUNT_PERCENT || '5';
+    const coupon = process.env.WHATSAPP_DISCOUNT_CODE || process.env.WHATSAPP_COUPON_CODE || 'wpp10';
+    const discount = process.env.WHATSAPP_DISCOUNT_PERCENT || '10';
     const recoveryUrl = lead.abandoned_checkout_url || '';
     const language = resolveLanguage(lead);
 
