@@ -1,6 +1,6 @@
 import { isWithinBusinessHours, isEligibleForSend } from '../utils/dateUtils.js';
 import { sendTemplateMessage } from '../services/whatsappService.js';
-import { alreadySentTemplate, logDispatchAttempt } from '../services/logService.js';
+import { acquireLeadDispatchLock, alreadySentTemplate, logDispatchAttempt } from '../services/logService.js';
 import { hasOrderForLeadSince } from '../shopify/orders.js';
 
 function buildLeadFromCheckout(checkout) {
@@ -29,6 +29,10 @@ function buildLeadFromCheckout(checkout) {
         country_code: countryCode,
         product_name: productName
     };
+}
+
+function normalizePhoneKey(phone) {
+    return String(phone || '').replace(/\D/g, '');
 }
 
 export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) {
@@ -80,8 +84,19 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
             continue;
         }
 
-        const alreadySent = await alreadySentTemplate(lead.phone, templateType, windowDays);
+        const lockPhone = normalizePhoneKey(lead.phone) || lead.phone;
+        const alreadySent = await alreadySentTemplate(lockPhone, templateType, windowDays);
         if (alreadySent) {
+            skipped++;
+            continue;
+        }
+
+        const lockAcquired = await acquireLeadDispatchLock({
+            phone: lockPhone,
+            templateType,
+            checkoutAbandonedAt: checkout.created_at
+        });
+        if (!lockAcquired) {
             skipped++;
             continue;
         }
@@ -98,7 +113,7 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
 
         const result = await sendTemplateMessage(lead, templateType);
         await logDispatchAttempt({
-            phone: lead.phone,
+            phone: lockPhone,
             email: lead.email,
             templateType,
             status: result.success ? result.status || 'SENT' : 'FAILED',

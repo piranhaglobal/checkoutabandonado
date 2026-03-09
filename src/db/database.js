@@ -32,6 +32,18 @@ const db = new sqlite3.Database(dbPath, (err) => {
             db.run(`CREATE INDEX IF NOT EXISTS idx_whatsapp_log_email_abandoned
                 ON whatsapp_dispatch_log(email, checkout_abandoned_at)`);
 
+            db.run(`CREATE TABLE IF NOT EXISTS whatsapp_dispatch_locks (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                lock_key TEXT NOT NULL UNIQUE,
+                phone TEXT NOT NULL,
+                template_type TEXT NOT NULL,
+                checkout_abandoned_at DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`);
+
+            db.run(`CREATE INDEX IF NOT EXISTS idx_whatsapp_lock_phone_template
+                ON whatsapp_dispatch_locks(phone, template_type, created_at)`);
+
             db.run(`CREATE TABLE IF NOT EXISTS whatsapp_dispatches (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL,
@@ -95,6 +107,23 @@ export function hasTemplateBeenSentWithinDays(phone, templateType, days) {
             (err, row) => {
                 if (err) reject(err);
                 resolve(!!row);
+            }
+        );
+    });
+}
+
+export function acquireDispatchLock({ lockKey, phone, templateType, checkoutAbandonedAt }) {
+    return new Promise((resolve, reject) => {
+        db.run(
+            `INSERT OR IGNORE INTO whatsapp_dispatch_locks (lock_key, phone, template_type, checkout_abandoned_at)
+             VALUES (?, ?, ?, ?)`,
+            [lockKey, phone, templateType, checkoutAbandonedAt || null],
+            function (err) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(this.changes > 0);
             }
         );
     });
