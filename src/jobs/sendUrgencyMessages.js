@@ -23,7 +23,7 @@ export async function runUrgencyJob() {
 }
 
 export function registerUrgencyJob() {
-    const includeWeekends = String(process.env.DISPATCH_INCLUDE_WEEKENDS || 'false').toLowerCase() === 'true';
+    const includeWeekends = String(process.env.DISPATCH_INCLUDE_WEEKENDS || 'true').toLowerCase() === 'true';
     const schedule = includeWeekends ? '0 9-18 * * *' : '0 9-18 * * 1-5';
     if (!cron.validate(schedule)) {
         console.error('[UrgencyJob] Invalid cron expression. Job not registered.');

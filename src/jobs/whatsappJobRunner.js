@@ -67,7 +67,7 @@ export async function runWhatsAppJob({ templateType, daysAgo, fetchCheckouts }) 
     const tz = process.env.DISPATCH_TZ || 'Europe/Lisbon';
     const startHour = parseInt(process.env.DISPATCH_START_HOUR || '9', 10);
     const endHour = parseInt(process.env.DISPATCH_END_HOUR || '18', 10);
-    const includeWeekends = String(process.env.DISPATCH_INCLUDE_WEEKENDS || 'false').toLowerCase() === 'true';
+    const includeWeekends = String(process.env.DISPATCH_INCLUDE_WEEKENDS || 'true').toLowerCase() === 'true';
     const windowDays = parseInt(process.env.WHATSAPP_TEMPLATE_WINDOW_DAYS || '30', 10);
     const now = new Date();
 
