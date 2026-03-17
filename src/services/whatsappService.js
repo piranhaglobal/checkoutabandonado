@@ -52,6 +52,25 @@ function applyDiscountToCheckoutUrl(url, discountCode) {
     }
 }
 
+function getOfficialStoreDomain() {
+    return String(process.env.WHATSAPP_PUBLIC_STORE_DOMAIN || process.env.OFFICIAL_STORE_DOMAIN || 'piranhasupplies.com')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '')
+        .toLowerCase();
+}
+
+function enforceOfficialStoreDomain(url) {
+    if (!url) return url;
+    try {
+        const parsed = new URL(url);
+        parsed.protocol = 'https:';
+        parsed.host = getOfficialStoreDomain();
+        return parsed.toString();
+    } catch (error) {
+        return url;
+    }
+}
+
 export async function sendTemplateMessage(lead, templateType) {
     const template = await loadTemplate(templateType);
     const language = resolveLanguage(lead);
@@ -68,9 +87,10 @@ export async function sendTemplateMessage(lead, templateType) {
         en: 'friend'
     };
     const fallbackName = names[language] || 'friend';
+    const rawCheckoutUrl = enforceOfficialStoreDomain(lead.abandoned_checkout_url || '');
     const checkoutUrl = templateType === 'discount'
-        ? applyDiscountToCheckoutUrl(lead.abandoned_checkout_url || '', discountCodeForUrl)
-        : (lead.abandoned_checkout_url || '');
+        ? applyDiscountToCheckoutUrl(rawCheckoutUrl, discountCodeForUrl)
+        : rawCheckoutUrl;
     const message = typeof parts === 'string'
         ? renderTemplatePart(parts, template, {
             first_name: lead.first_name || fallbackName,

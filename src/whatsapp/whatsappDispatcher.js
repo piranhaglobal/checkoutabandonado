@@ -99,6 +99,25 @@ function getEvolutionBaseUrl(apiUrl) {
     return apiUrl.replace(/\/$/, '');
 }
 
+function getOfficialStoreDomain() {
+    return String(process.env.WHATSAPP_PUBLIC_STORE_DOMAIN || process.env.OFFICIAL_STORE_DOMAIN || 'piranhasupplies.com')
+        .replace(/^https?:\/\//, '')
+        .replace(/\/$/, '')
+        .toLowerCase();
+}
+
+function enforceOfficialStoreDomain(url) {
+    if (!url) return url;
+    try {
+        const parsed = new URL(url);
+        parsed.protocol = 'https:';
+        parsed.host = getOfficialStoreDomain();
+        return parsed.toString();
+    } catch (error) {
+        return url;
+    }
+}
+
 function isErrorUpdateStatus(status) {
     if (status === undefined || status === null) return false;
     if (typeof status === 'number') return status === 0;
@@ -165,7 +184,7 @@ async function resolveFinalMessageStatus({ apiUrl, apiKey, instanceName, remoteJ
 function buildMessageParts(lead) {
     const coupon = process.env.WHATSAPP_DISCOUNT_CODE || process.env.WHATSAPP_COUPON_CODE || 'wpp10';
     const discount = process.env.WHATSAPP_DISCOUNT_PERCENT || '10';
-    const recoveryUrl = lead.abandoned_checkout_url || '';
+    const recoveryUrl = enforceOfficialStoreDomain(lead.abandoned_checkout_url || '');
     const language = resolveLanguage(lead);
 
     const names = {
